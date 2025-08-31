@@ -11,8 +11,7 @@ class ReportController extends Controller
 {
     public function store(Request $request)
     {
-        \Log::info('Signalement reçu', [
-            'data' => $request->all(),
+        \App\Helpers\LogHelper::info('Signalement reçu', [
             'user' => auth()->user() ? auth()->user()->id : 'non connecté'
         ]);
 
@@ -24,9 +23,9 @@ class ReportController extends Controller
                 'description' => 'nullable|string|max:1000'
             ]);
 
-            \Log::info('Validation réussie');
+            \App\Helpers\LogHelper::info('Validation réussie');
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Erreur de validation', ['errors' => $e->errors()]);
+            \App\Helpers\LogHelper::error('Erreur de validation', ['errors' => $e->errors()]);
             return response()->json(['error' => 'Données invalides', 'details' => $e->errors()], 422);
         }
 
@@ -106,4 +105,6 @@ class ReportController extends Controller
             'message' => 'Signalement ' . ($request->action === 'resolve' ? 'résolu' : 'rejeté') . ' avec succès'
         ]);
     }
+
+
 }

@@ -115,12 +115,11 @@ class UserController extends Controller
 
         try {
             // Log pour debug
-            \Log::info('Upload musique - Données reçues:', [
+            \App\Helpers\LogHelper::info('Upload musique - Données reçues:', [
                 'has_audio_file' => $request->hasFile('audio_file'),
                 'has_cover_image' => $request->hasFile('cover_image'),
                 'title' => $request->title,
-                'genre_ids' => $request->genre_ids,
-                'files' => $request->allFiles()
+                'genre_ids' => $request->genre_ids
             ]);
 
             // Upload du fichier audio

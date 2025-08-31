@@ -145,14 +145,11 @@ class ProfileController extends Controller
                 !is_uploaded_file($file->getPathname())
             ) {
 
-                \Log::warning('Fichier photo invalide', [
+                \App\Helpers\LogHelper::warning('Fichier photo invalide', [
                     'user_id' => $user->id,
                     'has_file' => $request->hasFile('photo'),
                     'is_valid' => $file ? $file->isValid() : false,
-                    'file_size' => $file ? $file->getSize() : 'N/A',
-                    'file_path' => $file ? $file->getPathname() : 'N/A',
-                    'file_exists' => $file ? file_exists($file->getPathname()) : false,
-                    'is_uploaded' => $file ? is_uploaded_file($file->getPathname()) : false
+                    'file_size' => $file ? $file->getSize() : 'N/A'
                 ]);
 
                 return redirect()->back()->withErrors(['photo' => 'Le fichier photo n\'est pas valide.']);
@@ -188,20 +185,18 @@ class ProfileController extends Controller
                 if ($file->move(storage_path('app/public/profile-photos'), $filename)) {
                     $path = 'profile-photos/' . $filename;
 
-                    \Log::info('Fichier déplacé avec succès', [
-                        'path' => $path,
-                        'full_path' => $destinationPath
+                    \App\Helpers\LogHelper::info('Fichier déplacé avec succès', [
+                        'path' => $path
                     ]);
 
                     // Utiliser save() au lieu d'update()
                     $user->profile_photo_path = $path;
                     $result = $user->save();
 
-                    \Log::info('Résultat du save', [
+                    \App\Helpers\LogHelper::info('Résultat du save', [
                         'user_id' => $user->id,
                         'new_photo_path' => $path,
-                        'save_result' => $result,
-                        'user_after_save' => $user->fresh()->toArray()
+                        'save_result' => $result
                     ]);
 
                     // Mettre à jour la session pour que la sidebar se mette à jour
@@ -213,12 +208,9 @@ class ProfileController extends Controller
                     throw new \Exception('Impossible de déplacer le fichier uploadé');
                 }
             } catch (\Exception $e) {
-                \Log::error('Erreur upload photo profil: ' . $e->getMessage(), [
+                \App\Helpers\LogHelper::error('Erreur upload photo profil: ' . $e->getMessage(), [
                     'user_id' => $user->id,
-                    'file_size' => $file->getSize(),
-                    'file_path' => $file->getPathname(),
-                    'file_exists' => file_exists($file->getPathname()),
-                    'is_uploaded' => is_uploaded_file($file->getPathname())
+                    'file_size' => $file->getSize()
                 ]);
 
                 return redirect()->back()->withErrors(['photo' => 'Erreur lors de l\'upload de la photo.']);

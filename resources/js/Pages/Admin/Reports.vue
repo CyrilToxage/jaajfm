@@ -409,7 +409,7 @@ const formatDate = (date) => {
 const resolveReport = async (reportId, action) => {
     try {
         const response = await fetch(`/admin/reports/${reportId}/resolve`, {
-            method: 'PATCH',
+            method: 'POST',
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
                 'Content-Type': 'application/json',

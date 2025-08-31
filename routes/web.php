@@ -172,7 +172,7 @@ Route::middleware(['auth:web', 'verified', 'admin'])->prefix('admin')->name('adm
     // Actions admin
     Route::delete('/users/{user}', [App\Http\Controllers\AdminController::class, 'deleteUser'])->name('users.delete');
     Route::delete('/musics/{music}', [App\Http\Controllers\AdminController::class, 'deleteMusic'])->name('musics.delete');
-    Route::patch('/reports/{report}/resolve', [App\Http\Controllers\ReportController::class, 'resolve'])->name('reports.resolve');
+    Route::post('/reports/{report}/resolve', [App\Http\Controllers\ReportController::class, 'resolve'])->name('reports.resolve');
 
 });
 

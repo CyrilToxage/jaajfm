@@ -127,7 +127,7 @@
             <MobileHeader :initial-query="query" @live-radio-toggle="handleLiveRadioToggle" />
 
             <!-- Contenu mobile -->
-            <main class="p-4 relative">
+            <main class="p-4 pt-20 relative">
                 <!-- Résultats de recherche -->
                 <div class="space-y-4">
                     <!-- Informations sur la recherche -->

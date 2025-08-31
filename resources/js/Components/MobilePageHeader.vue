@@ -56,10 +56,16 @@
         <!-- Barre de recherche (optionnelle) -->
         <div v-if="showSearch" class="px-4 pb-3">
             <div class="relative">
-                <input v-model="searchQuery" type="text" placeholder="Rechercher des musiques, artistes..."
-                    class="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-2 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50" />
-                <MagnifyingGlassIcon
-                    class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60" />
+                <input v-model="searchQuery"
+                       type="text"
+                       placeholder="Rechercher des musiques, artistes..."
+                       @keyup.enter="performSearch"
+                       @input="onInputChange"
+                       class="w-full bg-white/20 border border-white/30 rounded-lg px-4 py-2 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50" />
+                <button @click="performSearch"
+                        class="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60 hover:text-white transition-colors">
+                    <MagnifyingGlassIcon class="w-5 h-5" />
+                </button>
             </div>
         </div>
     </header>
@@ -70,8 +76,16 @@ import { ref } from 'vue'
 import { router } from '@inertiajs/vue3'
 import { MagnifyingGlassIcon } from '@heroicons/vue/24/outline'
 
+// Props
+const props = defineProps({
+    initialQuery: {
+        type: String,
+        default: ''
+    }
+})
+
 const showSearch = ref(false)
-const searchQuery = ref('')
+const searchQuery = ref(props.initialQuery || '')
 
 const openSearch = () => {
     showSearch.value = !showSearch.value
@@ -80,7 +94,36 @@ const openSearch = () => {
     }
 }
 
+let searchTimeout = null
 
+const performSearch = () => {
+    if (searchQuery.value.trim()) {
+        // Si on est déjà sur la page de recherche, mettre à jour les paramètres
+        if (window.location.pathname === '/search') {
+            router.get('/search', { q: searchQuery.value.trim() }, {
+                preserveState: true,
+                replace: true
+            })
+        } else {
+            // Sinon, naviguer vers la page de recherche
+            router.visit('/search', { q: searchQuery.value.trim() })
+        }
+        showSearch.value = false
+    }
+}
+
+const onInputChange = () => {
+    // Recherche automatique après 500ms d'inactivité
+    if (searchTimeout) {
+        clearTimeout(searchTimeout)
+    }
+
+    if (searchQuery.value.trim()) {
+        searchTimeout = setTimeout(() => {
+            performSearch()
+        }, 500)
+    }
+}
 
 const goHome = () => {
     router.visit('/')
