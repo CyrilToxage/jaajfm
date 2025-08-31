@@ -45,7 +45,7 @@ class MusicController extends Controller
         $popularGenres = DB::table('music_genres')
             ->select('music_genres.*', DB::raw('COUNT(music_genre.music_id) as musics_count'))
             ->join('music_genre', 'music_genres.id', '=', 'music_genre.music_genre_id')
-            ->groupBy('music_genres.id')
+            ->groupBy('music_genres.id', 'music_genres.name', 'music_genres.slug', 'music_genres.description', 'music_genres.color', 'music_genres.parent_id', 'music_genres.order', 'music_genres.is_active', 'music_genres.created_at', 'music_genres.updated_at')
             ->orderBy('musics_count', 'desc')
             ->get();
 
