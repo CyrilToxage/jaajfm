@@ -207,7 +207,7 @@ class ProfileController extends Controller
                     // Mettre à jour la session pour que la sidebar se mette à jour
                     $freshUser = $user->fresh();
                     // Forcer l'URL correcte
-                    $freshUser->profile_photo_url = 'http://jaajfm.test/storage/' . $path;
+                    $freshUser->profile_photo_url = config('app.url') . '/storage/' . $path;
                     $request->session()->put('auth.user', $freshUser);
                 } else {
                     throw new \Exception('Impossible de déplacer le fichier uploadé');
@@ -320,7 +320,7 @@ class ProfileController extends Controller
                 // Mettre à jour la session pour que la sidebar se mette à jour
                 $freshUser = $user->fresh();
                 // Forcer l'URL correcte
-                $freshUser->profile_photo_url = 'http://jaajfm.test/storage/' . $path;
+                $freshUser->profile_photo_url = config('app.url') . '/storage/' . $path;
                 $request->session()->put('auth.user', $freshUser);
             } else {
                 throw new \Exception('Impossible de déplacer le fichier uploadé');

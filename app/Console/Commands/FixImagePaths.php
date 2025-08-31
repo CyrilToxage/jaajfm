@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Music;
+use App\Models\Playlist;
 
 class FixImagePaths extends Command
 {
@@ -26,35 +27,80 @@ class FixImagePaths extends Command
      */
     public function handle()
     {
-        $this->info('Correction des chemins d\'images...');
+        $this->info('=== CORRECTION DES CHEMINS D\'IMAGES ===');
 
+        // Corriger les musiques
+        $this->info('\n1. Correction des chemins des musiques...');
         $musics = Music::whereNotNull('cover_image')->get();
         $fixedCount = 0;
 
         foreach ($musics as $music) {
-            $coverImage = $music->cover_image;
-            $originalPath = $coverImage;
+            $originalPath = $music->cover_image;
+            $newPath = $originalPath;
 
-            // Si le chemin contient 'storage/uploads/covers/storage/uploads/covers/'
-            if (str_contains($coverImage, 'storage/uploads/covers/storage/uploads/covers/')) {
-                $coverImage = str_replace('storage/uploads/covers/storage/uploads/covers/', 'uploads/covers/', $coverImage);
+            // Nettoyer les chemins dupliqués
+            if (str_contains($newPath, 'storage/uploads/covers/storage/uploads/covers/')) {
+                $newPath = str_replace('storage/uploads/covers/storage/uploads/covers/', 'uploads/covers/', $newPath);
+                $fixedCount++;
+            } elseif (str_contains($newPath, 'uploads/covers/storage/uploads/covers/')) {
+                $newPath = str_replace('uploads/covers/storage/uploads/covers/', 'uploads/covers/', $newPath);
+                $fixedCount++;
+            } elseif (str_contains($newPath, 'storage/uploads/covers/')) {
+                $newPath = str_replace('storage/uploads/covers/', 'uploads/covers/', $newPath);
                 $fixedCount++;
             }
 
-            // Si le chemin contient 'uploads/covers/uploads/covers/'
-            elseif (str_contains($coverImage, 'uploads/covers/uploads/covers/')) {
-                $coverImage = str_replace('uploads/covers/uploads/covers/', 'uploads/covers/', $coverImage);
+            // S'assurer que le chemin commence par uploads/covers/
+            if (!str_starts_with($newPath, 'uploads/covers/')) {
+                $newPath = 'uploads/covers/' . basename($newPath);
                 $fixedCount++;
             }
 
-            // Si le chemin a été modifié, sauvegarder
-            if ($coverImage !== $originalPath) {
-                $music->cover_image = $coverImage;
+            if ($newPath !== $originalPath) {
+                $music->cover_image = $newPath;
                 $music->save();
-                $this->line("Corrigé: {$originalPath} -> {$coverImage}");
+                $this->line("Corrigé: {$originalPath} -> {$newPath}");
             }
         }
 
-        $this->info("Correction terminée. {$fixedCount} chemins d'images corrigés.");
+        // Corriger les playlists
+        $this->info('\n2. Correction des chemins des playlists...');
+        $playlists = Playlist::whereNotNull('cover_image')->get();
+        $playlistFixedCount = 0;
+
+        foreach ($playlists as $playlist) {
+            $originalPath = $playlist->cover_image;
+            $newPath = $originalPath;
+
+            // Nettoyer les chemins dupliqués
+            if (str_contains($newPath, 'storage/playlist-covers/storage/playlist-covers/')) {
+                $newPath = str_replace('storage/playlist-covers/storage/playlist-covers/', 'playlist-covers/', $newPath);
+                $playlistFixedCount++;
+            } elseif (str_contains($newPath, 'playlist-covers/storage/playlist-covers/')) {
+                $newPath = str_replace('playlist-covers/storage/playlist-covers/', 'playlist-covers/', $newPath);
+                $playlistFixedCount++;
+            } elseif (str_contains($newPath, 'storage/playlist-covers/')) {
+                $newPath = str_replace('storage/playlist-covers/', 'playlist-covers/', $newPath);
+                $playlistFixedCount++;
+            }
+
+            // S'assurer que le chemin commence par playlist-covers/
+            if (!str_starts_with($newPath, 'playlist-covers/')) {
+                $newPath = 'playlist-covers/' . basename($newPath);
+                $playlistFixedCount++;
+            }
+
+            if ($newPath !== $originalPath) {
+                $playlist->cover_image = $newPath;
+                $playlist->save();
+                $this->line("Corrigé: {$originalPath} -> {$newPath}");
+            }
+        }
+
+        $this->info("\n✅ Correction terminée!");
+        $this->info("Musiques corrigées: {$fixedCount}");
+        $this->info("Playlists corrigées: {$playlistFixedCount}");
+
+        return 0;
     }
 }
